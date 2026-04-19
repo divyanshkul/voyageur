@@ -1,0 +1,511 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://facile.dev/schemas/travel-concierge-plan.schema.json",
+  "title": "Travel Concierge Planner Output",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "request_id": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "destination_selected": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "city_or_region": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "selection_confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": ["city_or_region", "country", "selection_confidence"]
+    },
+    "budget_feasibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["feasible", "tight", "infeasible"]
+        },
+        "user_budget": {
+          "type": "number",
+          "minimum": 0
+        },
+        "recommended_min_budget": {
+          "type": "number",
+          "minimum": 0
+        },
+        "recommended_comfort_budget": {
+          "type": "number",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string"
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "explanation": {
+          "type": "string"
+        },
+        "adjustment_options": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "status",
+        "user_budget",
+        "recommended_min_budget",
+        "recommended_comfort_budget",
+        "currency",
+        "explanation"
+      ]
+    },
+    "itinerary_options": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "option_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "positioning": {
+            "type": "string"
+          },
+          "pace": {
+            "type": "string",
+            "enum": ["relaxed", "balanced", "fast"]
+          },
+          "style_mix": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sightseeing": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "adventure": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "activities": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "food": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "culture": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": ["sightseeing", "adventure", "activities", "food", "culture"]
+          },
+          "summary": {
+            "type": "string"
+          },
+          "total_estimated_cost": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "amount_min": {
+                "type": "number",
+                "minimum": 0
+              },
+              "amount_max": {
+                "type": "number",
+                "minimum": 0
+              },
+              "currency": {
+                "type": "string"
+              },
+              "includes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "excludes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": ["amount_min", "amount_max", "currency"]
+          },
+          "budget_fit": {
+            "type": "string",
+            "enum": ["within_budget", "slightly_over", "over_budget"]
+          },
+          "day_plan": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "day_number": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "theme": {
+                  "type": "string"
+                },
+                "morning": {
+                  "type": "string"
+                },
+                "afternoon": {
+                  "type": "string"
+                },
+                "evening": {
+                  "type": "string"
+                },
+                "food_notes": {
+                  "type": "string"
+                },
+                "transfer_notes": {
+                  "type": "string"
+                }
+              },
+              "required": ["day_number", "theme", "morning", "afternoon", "evening"]
+            }
+          },
+          "hotel_recommendations": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "hotel_id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "address": {
+                      "type": "string"
+                    },
+                    "area": {
+                      "type": "string"
+                    },
+                    "latitude": {
+                      "type": "number"
+                    },
+                    "longitude": {
+                      "type": "number"
+                    }
+                  },
+                  "required": ["address", "latitude", "longitude"]
+                },
+                "price_estimate_per_night": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "amount_min": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "amount_max": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "taxes_included": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": ["amount_min", "amount_max", "currency", "taxes_included"]
+                },
+                "review": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "rating": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 5
+                    },
+                    "review_count": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "summary": {
+                      "type": "string"
+                    },
+                    "source": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["rating", "review_count", "summary", "source"]
+                },
+                "contact": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "phone_e164": {
+                      "type": "string",
+                      "pattern": "^\\+[1-9]\\d{7,14}$"
+                    },
+                    "phone_local": {
+                      "type": "string"
+                    },
+                    "website": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "required": ["phone_e164", "phone_local"]
+                },
+                "dietary_support": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "vegetarian": {
+                      "type": "boolean"
+                    },
+                    "vegan": {
+                      "type": "boolean"
+                    },
+                    "jain": {
+                      "type": "boolean"
+                    },
+                    "halal": {
+                      "type": "boolean"
+                    },
+                    "allergy_support": {
+                      "type": "boolean"
+                    },
+                    "notes": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "fit_reason": {
+                  "type": "string"
+                },
+                "source_refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "hotel_id",
+                "name",
+                "location",
+                "price_estimate_per_night",
+                "review",
+                "contact",
+                "fit_reason"
+              ]
+            }
+          },
+          "activity_shortlist": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "estimated_cost": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "currency": {
+                  "type": "string"
+                },
+                "duration_hours": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "booking_needed": {
+                  "type": "boolean"
+                }
+              },
+              "required": ["name", "category", "estimated_cost", "currency", "booking_needed"]
+            }
+          },
+          "risks_and_notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "option_id",
+          "title",
+          "positioning",
+          "pace",
+          "style_mix",
+          "summary",
+          "total_estimated_cost",
+          "budget_fit",
+          "day_plan",
+          "hotel_recommendations"
+        ]
+      }
+    },
+    "voice_call_tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "task_id": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["high", "medium", "low"]
+          },
+          "contact_type": {
+            "type": "string",
+            "enum": ["hotel", "tour_operator", "cab_provider"]
+          },
+          "target_name": {
+            "type": "string"
+          },
+          "phone_e164": {
+            "type": "string",
+            "pattern": "^\\+[1-9]\\d{7,14}$"
+          },
+          "preferred_language": {
+            "type": "string"
+          },
+          "call_objectives": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "confirm_live_price",
+                "negotiate_discount",
+                "confirm_dietary_support",
+                "confirm_room_features",
+                "confirm_child_friendly_setup",
+                "confirm_cancellation_policy",
+                "confirm_airport_pickup"
+              ]
+            }
+          },
+          "must_capture_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "completed", "skipped"]
+          }
+        },
+        "required": [
+          "task_id",
+          "priority",
+          "contact_type",
+          "target_name",
+          "phone_e164",
+          "call_objectives",
+          "must_capture_fields",
+          "status"
+        ]
+      }
+    },
+    "api_trace": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sources_used": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hotels_queried_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "missing_data": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "next_questions_if_any": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "blocking": {
+            "type": "boolean"
+          }
+        },
+        "required": ["id", "prompt", "reason", "blocking"]
+      }
+    }
+  },
+  "required": [
+    "request_id",
+    "generated_at",
+    "destination_selected",
+    "budget_feasibility",
+    "itinerary_options",
+    "voice_call_tasks"
+  ]
+}

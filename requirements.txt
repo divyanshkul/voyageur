@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+openai
+langgraph
+langchain-openai
+langchain-core
+httpx
+thefuzz
+python-Levenshtein
+streamlit
+python-dotenv
+python-multipart

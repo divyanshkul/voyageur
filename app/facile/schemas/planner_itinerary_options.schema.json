@@ -1,0 +1,583 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://facile.dev/schemas/planner-itinerary-options.schema.json",
+  "title": "Planner Agent Output (Strict, Downstream-Ready)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "request_id": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "planner_version": {
+      "type": "string"
+    },
+    "planner_notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "canonical_preferences": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "planner_brief": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "feasibility_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "overall_status": {
+          "type": "string",
+          "enum": ["feasible", "feasible_with_tradeoffs", "stretched", "not_recommended"]
+        },
+        "budget_comment": {
+          "type": "string"
+        },
+        "recommended_adjustments_if_needed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["overall_status", "budget_comment", "recommended_adjustments_if_needed"]
+    },
+    "recommended_itinerary_id": {
+      "type": "string"
+    },
+    "itinerary_options": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "itinerary_id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "style": {
+            "type": "string",
+            "enum": ["relaxed", "balanced", "activity_heavy"]
+          },
+          "trip_pace": {
+            "type": "string",
+            "enum": ["relaxed", "balanced", "fast"]
+          },
+          "positioning": {
+            "type": "string"
+          },
+          "fit_reason": {
+            "type": "string"
+          },
+          "feasibility": {
+            "type": "string",
+            "enum": ["within_budget", "stretch", "over_budget"]
+          },
+          "areas": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "estimated_total_trip_cost": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "amount_min": {
+                "type": "number",
+                "minimum": 0
+              },
+              "amount_max": {
+                "type": "number",
+                "minimum": 0
+              },
+              "currency": {
+                "type": "string"
+              }
+            },
+            "required": ["amount_min", "amount_max", "currency"]
+          },
+          "budget_band": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "hotel_budget_per_night_target": {
+                "type": "number",
+                "minimum": 0
+              },
+              "hotel_budget_per_night_hard_max": {
+                "type": "number",
+                "minimum": 0
+              },
+              "transport_intensity": {
+                "type": "string",
+                "enum": ["low", "medium", "high"]
+              },
+              "activity_spend_intensity": {
+                "type": "string",
+                "enum": ["low", "low_medium", "medium", "medium_high", "high"]
+              }
+            },
+            "required": [
+              "hotel_budget_per_night_target",
+              "hotel_budget_per_night_hard_max",
+              "transport_intensity",
+              "activity_spend_intensity"
+            ]
+          },
+          "why_this_option": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "day_plan": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "day": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "zone": {
+                  "type": "string"
+                },
+                "theme": {
+                  "type": "string"
+                },
+                "major_anchor": {
+                  "type": "string"
+                },
+                "secondary_items": {
+                  "type": "array",
+                  "maxItems": 2,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "pace": {
+                  "type": "string",
+                  "enum": ["light", "medium", "high"]
+                }
+              },
+              "required": ["day", "zone", "theme", "major_anchor", "secondary_items", "pace"]
+            }
+          },
+          "handoff_for_hotel_discovery": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "destination": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "country": {
+                    "type": "string"
+                  },
+                  "city_or_region": {
+                    "type": "string"
+                  },
+                  "micro_areas": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": ["country", "city_or_region", "micro_areas"]
+              },
+              "dates": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "check_in": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "check_out": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "nights": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": ["check_in", "check_out", "nights"]
+              },
+              "party": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "adults": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "children": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": ["adults", "children"]
+              },
+              "budget": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "total_excl_flights": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
+                  "hotel_budget_total_target": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "hotel_budget_per_night_target": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "hotel_budget_per_night_hard_max": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "total_excl_flights",
+                  "currency",
+                  "hotel_budget_total_target",
+                  "hotel_budget_per_night_target",
+                  "hotel_budget_per_night_hard_max"
+                ]
+              },
+              "hotel_preferences": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "property_types": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "hotel_class_preference": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 5
+                    }
+                  },
+                  "must_have_amenities": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "nice_to_have_amenities": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "free_cancellation_preferred": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "property_types",
+                  "hotel_class_preference",
+                  "must_have_amenities",
+                  "nice_to_have_amenities",
+                  "free_cancellation_preferred"
+                ]
+              },
+              "user_constraints": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "dietary": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "location_preference": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "mobility_constraints": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "special_notes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": ["dietary", "location_preference", "mobility_constraints", "special_notes"]
+              },
+              "ranking_mode": {
+                "type": "string",
+                "enum": ["best_value", "quality_first", "budget_first"]
+              }
+            },
+            "required": [
+              "destination",
+              "dates",
+              "party",
+              "budget",
+              "hotel_preferences",
+              "user_constraints",
+              "ranking_mode"
+            ]
+          },
+          "selected_itinerary": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "trip_request_id": {
+                "type": "string"
+              },
+              "selected_itinerary_id": {
+                "type": "string"
+              },
+              "destination": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "country": {
+                    "type": "string"
+                  },
+                  "city_or_region": {
+                    "type": "string"
+                  },
+                  "micro_areas": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": ["country", "city_or_region", "micro_areas"]
+              },
+              "dates": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "check_in": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "check_out": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "nights": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": ["check_in", "check_out", "nights"]
+              },
+              "party": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "adults": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "children": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": ["adults", "children"]
+              },
+              "budget": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "total_excl_flights": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "target_per_night": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "hard_max_per_night": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "currency": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "total_excl_flights",
+                  "target_per_night",
+                  "hard_max_per_night",
+                  "currency"
+                ]
+              },
+              "preferences": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "property_types": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "hotel_class": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 5
+                    }
+                  },
+                  "must_have_amenities": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "nice_to_have_amenities": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "free_cancellation_preferred": {
+                    "type": "boolean"
+                  },
+                  "minimum_rating": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 5
+                  }
+                },
+                "required": [
+                  "property_types",
+                  "hotel_class",
+                  "must_have_amenities",
+                  "nice_to_have_amenities",
+                  "free_cancellation_preferred",
+                  "minimum_rating"
+                ]
+              },
+              "constraints": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "dietary": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "location_preference": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "mobility_constraints": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "special_notes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": ["dietary", "location_preference", "mobility_constraints", "special_notes"]
+              },
+              "ranking_mode": {
+                "type": "string",
+                "enum": ["best_value", "quality_first", "budget_first"]
+              }
+            },
+            "required": [
+              "trip_request_id",
+              "selected_itinerary_id",
+              "destination",
+              "dates",
+              "party",
+              "budget",
+              "preferences",
+              "constraints",
+              "ranking_mode"
+            ]
+          }
+        },
+        "required": [
+          "itinerary_id",
+          "label",
+          "title",
+          "style",
+          "trip_pace",
+          "positioning",
+          "fit_reason",
+          "feasibility",
+          "areas",
+          "estimated_total_trip_cost",
+          "budget_band",
+          "why_this_option",
+          "day_plan",
+          "handoff_for_hotel_discovery",
+          "selected_itinerary"
+        ]
+      }
+    }
+  },
+  "required": [
+    "request_id",
+    "generated_at",
+    "model",
+    "planner_version",
+    "planner_notes",
+    "feasibility_summary",
+    "recommended_itinerary_id",
+    "itinerary_options"
+  ]
+}

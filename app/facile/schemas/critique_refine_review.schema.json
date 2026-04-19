@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://facile.dev/schemas/critique-refine-review.schema.json",
+  "title": "Critique + Refine Output",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "trip_request_id": {
+      "type": "string"
+    },
+    "review_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "top_recommendation_itinerary_id": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["top_recommendation_itinerary_id", "notes"]
+    },
+    "itinerary_reviews": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "itinerary_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["valid", "valid_with_risk", "conditionally_invalid", "invalid"]
+          },
+          "hard_failures": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "issue_id": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "severity": {
+                  "type": "string",
+                  "enum": ["major", "medium", "minor"]
+                },
+                "day": {
+                  "type": ["integer", "null"]
+                },
+                "location": {
+                  "type": ["string", "null"]
+                },
+                "summary": {
+                  "type": "string"
+                },
+                "why_it_matters": {
+                  "type": "string"
+                },
+                "recommended_action": {
+                  "type": "string"
+                },
+                "evidence_confidence": {
+                  "type": "string",
+                  "enum": ["low", "medium", "high"]
+                }
+              },
+              "required": [
+                "issue_id",
+                "type",
+                "severity",
+                "day",
+                "location",
+                "summary",
+                "why_it_matters",
+                "recommended_action",
+                "evidence_confidence"
+              ]
+            }
+          },
+          "score_breakdown_before_refine": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "preference_match": {
+                "type": "number"
+              },
+              "logical_routing": {
+                "type": "number"
+              },
+              "temporal_feasibility": {
+                "type": "number"
+              },
+              "budget_fit": {
+                "type": "number"
+              },
+              "comfort_usability": {
+                "type": "number"
+              },
+              "constraint_satisfaction": {
+                "type": "number"
+              },
+              "distinctiveness": {
+                "type": "number"
+              },
+              "penalties": {
+                "type": "number"
+              },
+              "total": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "preference_match",
+              "logical_routing",
+              "temporal_feasibility",
+              "budget_fit",
+              "comfort_usability",
+              "constraint_satisfaction",
+              "distinctiveness",
+              "penalties",
+              "total"
+            ]
+          },
+          "score_breakdown_after_refine": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "preference_match": {
+                "type": "number"
+              },
+              "logical_routing": {
+                "type": "number"
+              },
+              "temporal_feasibility": {
+                "type": "number"
+              },
+              "budget_fit": {
+                "type": "number"
+              },
+              "comfort_usability": {
+                "type": "number"
+              },
+              "constraint_satisfaction": {
+                "type": "number"
+              },
+              "distinctiveness": {
+                "type": "number"
+              },
+              "penalties": {
+                "type": "number"
+              },
+              "total": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "preference_match",
+              "logical_routing",
+              "temporal_feasibility",
+              "budget_fit",
+              "comfort_usability",
+              "constraint_satisfaction",
+              "distinctiveness",
+              "penalties",
+              "total"
+            ]
+          },
+          "score_before_refine": {
+            "type": "number"
+          },
+          "score_after_refine": {
+            "type": "number"
+          },
+          "improvement_delta": {
+            "type": "number"
+          },
+          "changes_made": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "change_type": {
+                  "type": "string"
+                },
+                "day": {
+                  "type": ["integer", "null"]
+                },
+                "summary": {
+                  "type": "string"
+                }
+              },
+              "required": ["change_type", "day", "summary"]
+            }
+          },
+          "refined_itinerary": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "ranking_position": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "itinerary_id",
+          "status",
+          "hard_failures",
+          "issues",
+          "score_breakdown_before_refine",
+          "score_breakdown_after_refine",
+          "score_before_refine",
+          "score_after_refine",
+          "improvement_delta",
+          "changes_made",
+          "refined_itinerary",
+          "ranking_position"
+        ]
+      }
+    },
+    "planner_feedback": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "common_failures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["common_failures"]
+    }
+  },
+  "required": ["trip_request_id", "review_summary", "itinerary_reviews", "planner_feedback"]
+}

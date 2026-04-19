@@ -1,0 +1,328 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* shadcn tokens */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Editorial palette — custom tokens */
+  --color-canvas: var(--canvas);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-hairline: var(--hairline);
+  --color-cognac: var(--cognac);
+  --color-cognac-soft: var(--cognac-soft);
+  --color-sage: var(--sage);
+  --color-sage-soft: var(--sage-soft);
+  --color-saffron: var(--saffron);
+  --color-clay: var(--clay);
+
+  /* Fonts */
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+  --font-display: var(--font-display), ui-serif, Georgia, serif;
+  --font-heading: var(--font-display);
+
+  /* Radii */
+  --radius-sm: calc(var(--radius) * 0.55);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.9);
+}
+
+:root {
+  /* ——— Editorial palette (light) ——— */
+  --canvas: oklch(0.968 0.012 82);
+  --paper: oklch(0.992 0.006 85);
+  --ink: oklch(0.18 0.012 65);
+  --ink-soft: oklch(0.38 0.015 65);
+  --hairline: oklch(0.88 0.012 75);
+  --cognac: oklch(0.52 0.14 45);
+  --cognac-soft: oklch(0.92 0.04 58);
+  --sage: oklch(0.52 0.08 145);
+  --sage-soft: oklch(0.94 0.03 140);
+  --saffron: oklch(0.78 0.14 75);
+  --clay: oklch(0.55 0.17 30);
+
+  /* ——— shadcn mapping ——— */
+  --background: var(--canvas);
+  --foreground: var(--ink);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: oklch(0.94 0.012 80);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(0.945 0.01 80);
+  --muted-foreground: var(--ink-soft);
+  --accent: var(--cognac-soft);
+  --accent-foreground: var(--cognac);
+  --destructive: var(--clay);
+  --border: var(--hairline);
+  --input: var(--hairline);
+  --ring: var(--cognac);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/40;
+  }
+  html {
+    @apply font-sans;
+    font-feature-settings: "ss01", "cv11";
+  }
+  body {
+    @apply bg-canvas text-ink;
+    background-image:
+      radial-gradient(
+        1100px 560px at 82% -8%,
+        oklch(0.93 0.05 55 / 0.55),
+        transparent 60%
+      ),
+      radial-gradient(
+        900px 500px at -5% 110%,
+        oklch(0.94 0.035 140 / 0.4),
+        transparent 55%
+      );
+    background-attachment: fixed;
+  }
+
+  /* Subtle grain overlay for paper texture */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.35;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.15 0 0 0 0 0.1 0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  ::selection {
+    background: var(--cognac);
+    color: var(--paper);
+  }
+}
+
+@layer components {
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+
+  .display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    line-height: 1.02;
+  }
+
+  .display-italic {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    line-height: 1.02;
+  }
+
+  .num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hairline-divider {
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--hairline) 15%,
+      var(--hairline) 85%,
+      transparent
+    );
+    height: 1px;
+  }
+
+  /* A soft paper-like card surface */
+  .paper {
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    box-shadow:
+      0 1px 0 oklch(1 0 0 / 0.6) inset,
+      0 20px 40px -30px oklch(0.2 0.02 60 / 0.18),
+      0 1px 2px -1px oklch(0.2 0.02 60 / 0.06);
+  }
+
+  .paper-soft {
+    background: color-mix(in oklch, var(--paper) 94%, var(--canvas));
+    border: 1px solid var(--hairline);
+  }
+
+  .ink-pill {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 999px;
+  }
+}
+
+/* —————— Motion —————— */
+@keyframes voy-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 var(--cognac);
+  }
+  50% {
+    box-shadow: 0 0 0 6px oklch(0.52 0.14 45 / 0);
+  }
+}
+
+@keyframes voy-dot-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.6;
+  }
+}
+
+@keyframes voy-bar-sweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+
+@keyframes voy-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes voy-fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes voy-line-draw {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  100% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+}
+
+@keyframes voy-ring-soft {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+@keyframes voy-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.voy-pulse {
+  animation: voy-pulse 1.8s ease-in-out infinite;
+}
+
+.voy-dot-pulse {
+  animation: voy-dot-pulse 1.3s ease-in-out infinite;
+}
+
+.voy-rise {
+  animation: voy-rise 420ms ease-out both;
+}
+
+.voy-fade {
+  animation: voy-fade 600ms ease-out both;
+}
+
+.voy-ring::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid var(--cognac);
+  animation: voy-ring-soft 1.6s ease-out infinite;
+  pointer-events: none;
+}
+
+.voy-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(1 0 0 / 0.45) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: voy-shimmer 2.2s linear infinite;
+}
+
+/* Thin scrollbar that respects the aesthetic */
+.voy-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.voy-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.voy-scroll::-webkit-scrollbar-thumb {
+  background: var(--hairline);
+  border-radius: 999px;
+}
+.voy-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-soft);
+}

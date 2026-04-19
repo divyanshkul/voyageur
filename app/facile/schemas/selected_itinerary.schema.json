@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://facile.dev/schemas/selected-itinerary.schema.json",
+  "title": "Selected Itinerary Input (Phase 1)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "trip_request_id": {
+      "type": "string"
+    },
+    "selected_itinerary_id": {
+      "type": "string"
+    },
+    "destination": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "country": {
+          "type": "string"
+        },
+        "city_or_region": {
+          "type": "string"
+        },
+        "micro_areas": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["country", "city_or_region", "micro_areas"]
+    },
+    "dates": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "check_in": {
+          "type": "string",
+          "format": "date"
+        },
+        "check_out": {
+          "type": "string",
+          "format": "date"
+        },
+        "nights": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": ["check_in", "check_out"]
+    },
+    "party": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "adults": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "children": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": ["adults", "children"]
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "total_excl_flights": {
+          "type": "number",
+          "minimum": 0
+        },
+        "target_per_night": {
+          "type": "number",
+          "minimum": 0
+        },
+        "hard_max_per_night": {
+          "type": "number",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string"
+        }
+      },
+      "required": ["target_per_night", "hard_max_per_night", "currency"]
+    },
+    "preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "property_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hotel_class": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          }
+        },
+        "must_have_amenities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "nice_to_have_amenities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "free_cancellation_preferred": {
+          "type": "boolean"
+        },
+        "minimum_rating": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5
+        }
+      },
+      "required": [
+        "hotel_class",
+        "must_have_amenities",
+        "free_cancellation_preferred"
+      ]
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dietary": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "location_preference": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mobility_constraints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "special_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ranking_mode": {
+      "type": "string",
+      "enum": ["best_value", "quality_first", "budget_first"]
+    }
+  },
+  "required": [
+    "trip_request_id",
+    "selected_itinerary_id",
+    "destination",
+    "dates",
+    "party",
+    "budget",
+    "preferences"
+  ]
+}

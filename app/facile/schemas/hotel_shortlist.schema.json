@@ -1,0 +1,383 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://facile.dev/schemas/hotel-shortlist.schema.json",
+  "title": "Phase 1 Hotel Shortlist Output",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "shortlist_id": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "selected_itinerary_id": {
+      "type": "string"
+    },
+    "discovery_request": {
+      "$ref": "hotel_discovery_request.schema.json"
+    },
+    "search_stats": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "search_jobs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "raw_candidates_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "deduped_candidates_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rejected_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "accepted_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "provisional_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "details_enriched_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "area_corrected_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "area_unknown_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "hotels_with_review_snippets": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "review_api_calls": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "search_jobs",
+        "raw_candidates_count",
+        "deduped_candidates_count",
+        "rejected_count",
+        "accepted_count",
+        "provisional_count",
+        "details_enriched_count",
+        "area_corrected_count",
+        "area_unknown_count",
+        "hotels_with_review_snippets",
+        "review_api_calls"
+      ]
+    },
+    "top_5_hotels": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "name": {
+            "type": "string"
+          },
+          "property_token": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "nightly_price": {
+            "type": "number",
+            "minimum": 0
+          },
+          "currency": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "reviews": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "hotel_class": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "amenities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "phone": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "link": {
+            "type": "string"
+          },
+          "typical_price_range": {
+            "type": "string"
+          },
+          "scores": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "budget_fit": {
+                "type": "number"
+              },
+              "quality_fit": {
+                "type": "number"
+              },
+              "reviews_fit": {
+                "type": "number"
+              },
+              "amenity_fit": {
+                "type": "number"
+              },
+              "area_fit": {
+                "type": "number"
+              },
+              "deal_bonus": {
+                "type": "number"
+              },
+              "final_score": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "budget_fit",
+              "quality_fit",
+              "reviews_fit",
+              "amenity_fit",
+              "area_fit",
+              "deal_bonus",
+              "final_score"
+            ]
+          },
+          "why_selected": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "source_search_buckets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "search_areas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "area_validation": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": ["unverified", "unknown", "matched", "corrected"]
+              },
+              "search_area": {
+                "type": "string"
+              },
+              "detected_area": {
+                "type": ["string", "null"]
+              },
+              "evidence": {
+                "type": ["string", "null"]
+              }
+            }
+          },
+          "review_insights": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "total_reviews": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "overall_rating": {
+                "type": ["number", "null"],
+                "minimum": 0,
+                "maximum": 5
+              },
+              "top_positive_topics": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "positive": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "negative": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "total_mentioned": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": ["name", "positive", "negative", "total_mentioned"]
+                }
+              },
+              "top_negative_topics": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "positive": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "negative": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "total_mentioned": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": ["name", "positive", "negative", "total_mentioned"]
+                }
+              },
+              "snippets": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "topic": {
+                      "type": "string"
+                    },
+                    "topic_signal": {
+                      "type": "string"
+                    },
+                    "rating": {
+                      "type": ["number", "null"]
+                    },
+                    "source": {
+                      "type": ["string", "null"]
+                    },
+                    "date": {
+                      "type": ["string", "null"]
+                    },
+                    "author": {
+                      "type": ["string", "null"]
+                    },
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "sentiment": {
+                      "type": "string",
+                      "enum": ["positive", "negative", "mixed", "unknown"]
+                    }
+                  },
+                  "required": [
+                    "topic",
+                    "topic_signal",
+                    "rating",
+                    "source",
+                    "date",
+                    "author",
+                    "snippet",
+                    "sentiment"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "total_reviews",
+              "overall_rating",
+              "top_positive_topics",
+              "top_negative_topics",
+              "snippets"
+            ]
+          },
+          "photos": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "thumbnail": {
+                  "type": "string"
+                }
+              },
+              "required": ["url", "thumbnail"]
+            }
+          }
+        },
+        "required": [
+          "rank",
+          "name",
+          "property_token",
+          "area",
+          "nightly_price",
+          "currency",
+          "rating",
+          "reviews",
+          "hotel_class",
+          "amenities",
+          "scores",
+          "why_selected",
+          "source_search_buckets",
+          "search_areas",
+          "area_validation",
+          "review_insights",
+          "photos"
+        ]
+      }
+    }
+  },
+  "required": [
+    "shortlist_id",
+    "generated_at",
+    "selected_itinerary_id",
+    "discovery_request",
+    "search_stats",
+    "top_5_hotels"
+  ]
+}

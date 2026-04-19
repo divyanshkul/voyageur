@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://facile.dev/schemas/hotel-discovery-request.schema.json",
+  "title": "Hotel Discovery Request (Planner -> Hotel API Layer)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "trip_request_id": {
+      "type": "string"
+    },
+    "selected_itinerary_id": {
+      "type": "string"
+    },
+    "destination": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "country": {
+          "type": "string"
+        },
+        "city_or_region": {
+          "type": "string"
+        },
+        "micro_areas": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["country", "city_or_region", "micro_areas"]
+    },
+    "dates": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "check_in": {
+          "type": "string",
+          "format": "date"
+        },
+        "check_out": {
+          "type": "string",
+          "format": "date"
+        },
+        "nights": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": ["check_in", "check_out", "nights"]
+    },
+    "party": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "adults": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "children": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": ["adults", "children"]
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "total_excl_flights": {
+          "type": "number",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string"
+        },
+        "hotel_budget_total_target": {
+          "type": "number",
+          "minimum": 0
+        },
+        "hotel_budget_per_night_target": {
+          "type": "number",
+          "minimum": 0
+        },
+        "hotel_budget_per_night_hard_max": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "currency",
+        "hotel_budget_total_target",
+        "hotel_budget_per_night_target",
+        "hotel_budget_per_night_hard_max"
+      ]
+    },
+    "hotel_preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "property_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hotel_class_preference": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          }
+        },
+        "must_have_amenities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "nice_to_have_amenities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "free_cancellation_preferred": {
+          "type": "boolean"
+        },
+        "minimum_rating": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5
+        }
+      },
+      "required": [
+        "property_types",
+        "hotel_class_preference",
+        "must_have_amenities",
+        "nice_to_have_amenities",
+        "free_cancellation_preferred"
+      ]
+    },
+    "ranking_mode": {
+      "type": "string"
+    },
+    "user_constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dietary": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "location_preference": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mobility_constraints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "special_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "dietary",
+        "location_preference",
+        "mobility_constraints",
+        "special_notes"
+      ]
+    }
+  },
+  "required": [
+    "trip_request_id",
+    "selected_itinerary_id",
+    "destination",
+    "dates",
+    "party",
+    "budget",
+    "hotel_preferences",
+    "ranking_mode",
+    "user_constraints"
+  ]
+}
