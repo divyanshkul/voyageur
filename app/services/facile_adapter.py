@@ -271,8 +271,13 @@ class FacilePipelineResult:
         lines = [f"**{title}**", f"Style: {style} | Pace: {pace}"]
         if areas:
             lines.append(f"Areas: {', '.join(areas)}")
-        if cost:
-            lines.append(f"Estimated total: Rs.{cost:,}")
+        cost_amount: int | None = None
+        if isinstance(cost, dict):
+            cost_amount = cost.get("amount") or cost.get("value") or cost.get("total")
+        elif isinstance(cost, (int, float)):
+            cost_amount = int(cost)
+        if cost_amount:
+            lines.append(f"Estimated total: Rs.{int(cost_amount):,}")
         lines.append("")
 
         # Day-by-day
