@@ -12,3 +12,4 @@ python-Levenshtein
 streamlit
 python-dotenv
 python-multipart
+langfuse>=3.0.0

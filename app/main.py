@@ -15,6 +15,7 @@ from pydantic import BaseModel
 
 from app.config import get_settings
 from app.logging_config import setup_logging
+from app.services import tracing
 from app.webhooks.bolna_webhook import bolna_webhook_router
 from app.ws_manager import ws_manager
 
@@ -24,6 +25,11 @@ from app.ws_manager import ws_manager
 setup_logging()
 logger = logging.getLogger(__name__)
 
+# Tracing — also init at import time so the langfuse.openai wrapper picks up
+# env vars before the manager (and its OpenAI client) is ever instantiated.
+# Lifespan will also flush + shutdown cleanly.
+tracing.init_tracing(get_settings())
+
 
 # ---------------------------------------------------------------------------
 # Lifespan
@@ -31,8 +37,13 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Voyageur API starting")
+    # Tracing MUST init before the manager is constructed so the
+    # langfuse.openai wrapper sees the env vars on first import.
+    tracing.init_tracing(get_settings())
     yield
     logger.info("Voyageur API shutting down")
+    tracing.flush()
+    tracing.shutdown()
 
 
 # ---------------------------------------------------------------------------

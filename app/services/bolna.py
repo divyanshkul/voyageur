@@ -18,6 +18,8 @@ import time
 
 import httpx
 
+from app.services import tracing
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -53,6 +55,7 @@ class BolnaClient:
     # ------------------------------------------------------------------
     # Agent management
     # ------------------------------------------------------------------
+    @tracing.observe(name="bolna.create_agent")
     async def create_agent(self, agent_config: dict, agent_prompts: dict) -> str:
         """Create a Bolna voice agent.
 
@@ -101,6 +104,7 @@ class BolnaClient:
     # ------------------------------------------------------------------
     # Calling
     # ------------------------------------------------------------------
+    @tracing.observe(name="bolna.make_call")
     async def make_call(self, agent_id: str, phone: str) -> str:
         """Initiate an outbound call.
 
@@ -142,6 +146,7 @@ class BolnaClient:
         )
         return resp
 
+    @tracing.observe(name="bolna.poll_until_complete")
     async def poll_until_complete(
         self,
         execution_id: str,

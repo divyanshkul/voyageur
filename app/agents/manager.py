@@ -14,8 +14,6 @@ from __future__ import annotations
 import logging
 import time
 
-from openai import AsyncOpenAI
-
 from app.agents.caller import CallingAgent
 from app.agents.manager_graph import build_graph
 from app.agents.manager_planner import determine_next_action
@@ -23,10 +21,19 @@ from app.agents.preference import PreferenceAgent
 from app.agents.reporter import ReportAgent
 from app.agents.research import ResearchAgent
 from app.config import Settings
+from app.services import tracing
 from app.services.places import GooglePlacesClient
 from app.services.serpapi import SerpAPIClient
 from app.state import VoyageurState
 from app.ws_manager import ws_manager
+
+# Use the Langfuse-wrapped AsyncOpenAI if tracing is enabled so every
+# chat.completions call is auto-traced as a generation. Fall back to the
+# plain SDK otherwise — identical API, just no traces.
+if tracing.is_enabled():
+    from langfuse.openai import AsyncOpenAI  # type: ignore
+else:
+    from openai import AsyncOpenAI
 
 logger = logging.getLogger(__name__)
 
@@ -65,8 +72,10 @@ class ManagerAgent:
 
         # -- Sub-agents ----------------------------------------------------
         self._preference_agent = PreferenceAgent(openai_client)
+        # GooglePlacesClient is backed by SerpAPI's google_maps engine, so it
+        # uses the same SERPAPI key as SerpAPIClient.
         self._research_agent = ResearchAgent(
-            places_client=GooglePlacesClient(config.google_places_api_key),
+            places_client=GooglePlacesClient(config.serpapi_api_key),
             serpapi_client=SerpAPIClient(config.serpapi_api_key),
             openai_client=openai_client,
             openai_api_key=config.openai_api_key,
@@ -105,6 +114,7 @@ class ManagerAgent:
     # ------------------------------------------------------------------
     # Main entry point
     # ------------------------------------------------------------------
+    @tracing.observe(name="manager.run")
     async def run(self, user_input: str, session_id: str = "default") -> dict:
         """Process one user message and return the agent's response.
 
@@ -113,10 +123,20 @@ class ManagerAgent:
         done) so the user gets back a complete result per interaction.
 
         Returns:
-            ``{"reply", "stage", "hotels", "call_progress", "report"}``
+            ``{"reply", "stage", "hotels", "call_progress", "report", "trace_url"}``
         """
         t0 = time.monotonic()
         state = self._get_or_create_state(session_id)
+
+        # Tag the active Langfuse trace with session + incoming stage so all
+        # turns from one browser session collapse into a single Session view.
+        tracing.update_current_trace(
+            session_id=session_id,
+            user_id=session_id,
+            tags=["voyageur", f"stage:{state['stage']}"],
+            metadata={"input_len": len(user_input)},
+            input={"user_input": user_input, "stage_in": state["stage"]},
+        )
 
         # -- If pipeline finished, reset for a new conversation ------------
         if state["stage"] == "done":
@@ -190,6 +210,17 @@ class ManagerAgent:
             elapsed_ms,
         )
 
+        trace_url = tracing.get_trace_url()
+        tracing.update_current_trace(
+            output={
+                "stage": state["stage"],
+                "reply_len": len(reply),
+                "hotels": len(state.get("hotel_candidates", [])),
+                "calls": len(state.get("call_results", [])),
+                "has_report": state.get("report") is not None,
+            },
+        )
+
         return {
             "reply": reply,
             "stage": state["stage"],
@@ -208,6 +239,7 @@ class ManagerAgent:
                 if state["report"]
                 else None
             ),
+            "trace_url": trace_url,
         }
 
     # ------------------------------------------------------------------

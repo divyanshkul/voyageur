@@ -14,6 +14,7 @@ from datetime import date
 from thefuzz import fuzz
 
 from app.models import Hotel  # noqa: F401 – kept for interface parity
+from app.services import tracing
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +92,7 @@ class SerpAPIClient:
         self._api_key = api_key
         logger.warning("SerpAPIClient initialized (MOCK MODE)")
 
+    @tracing.observe(name="serpapi.get_ota_prices")
     async def get_ota_prices(
         self,
         destination: str,

@@ -20,7 +20,19 @@ class Settings(BaseSettings):
     max_concurrent_calls: int = 3
     call_timeout_seconds: int = 120
 
-    model_config = SettingsConfigDict(env_file=".env")
+    # Langfuse — enabled iff both keys are present.
+    langfuse_public_key: str = ""
+    langfuse_secret_key: str = ""
+    langfuse_base_url: str = "https://cloud.langfuse.com"
+    # Optional tag/release identifiers for splitting traces by env
+    langfuse_release: str = "dev"
+    langfuse_environment: str = "local"
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    @property
+    def langfuse_enabled(self) -> bool:
+        return bool(self.langfuse_public_key and self.langfuse_secret_key)
 
 
 @lru_cache

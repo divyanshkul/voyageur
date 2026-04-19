@@ -1,24 +1,31 @@
-# MOCK IMPLEMENTATION - Will be replaced with real Google Places API by teammate
-# Interface must stay exactly the same: GooglePlacesClient with search_hotels() and get_hotel_details()
-"""Google Places API client (Phase 2a).
+"""Google Places client backed by SerpAPI's google_maps engine.
 
-Initially a MOCK implementation returning realistic fake Indian hotel data.
-A teammate will replace this with the real Google Places API (New) Text Search
-integration.  The interface (GooglePlacesClient) is LOCKED.
+We use SerpAPI rather than the Google Places API directly so one key
+(SERPAPI_API_KEY) powers both this module (hotel discovery) and
+``serpapi.py`` (OTA prices). Interface is preserved from the original mock,
+so callers (ResearchAgent) need no changes.
+
+Fail-safe: if the API key is missing/placeholder, or a request fails, we
+fall back to the curated mock data below so the demo keeps working.
 """
+
+from __future__ import annotations
 
 import logging
 import random
 import re
 
+import httpx
+
 from app.models import Hotel
+from app.services import tracing
 
 logger = logging.getLogger(__name__)
 
-MOCK_MODE = True
+SERPAPI_BASE = "https://serpapi.com/search"
 
 # ---------------------------------------------------------------------------
-# Mock hotel data per destination
+# Mock fallback data (kept so the pipeline still runs without a live key)
 # ---------------------------------------------------------------------------
 
 _COORG_HOTELS: list[dict] = [
@@ -68,19 +75,16 @@ _DESTINATION_MAP: dict[str, list[dict]] = {
 
 
 def _detect_destination(query: str) -> tuple[str, list[dict]]:
-    """Parse destination from query and return matching hotel list."""
     lower = query.lower()
     for key, hotels in _DESTINATION_MAP.items():
         if key in lower:
             return key, hotels
-    # Try "in {destination}" pattern
     match = re.search(r"\bin\s+(\w+)", lower)
     dest = match.group(1) if match else "generic"
     return dest, _DESTINATION_MAP.get(dest, _GENERIC_HOTELS)
 
 
 def _build_mock_hotels(destination: str, raw_hotels: list[dict]) -> list[Hotel]:
-    """Convert raw dicts into Hotel model instances with mock place_ids."""
     slug = re.sub(r"[^a-z0-9]+", "_", destination.lower()).strip("_")
     result: list[Hotel] = []
     for i, h in enumerate(raw_hotels):
@@ -96,43 +100,149 @@ def _build_mock_hotels(destination: str, raw_hotels: list[dict]) -> list[Hotel]:
     return result
 
 
-class GooglePlacesClient:
-    """Mock Google Places client returning realistic fake Indian hotel data.
+def _normalize_phone(raw: str | None) -> str:
+    if not raw:
+        return ""
+    cleaned = re.sub(r"[^\d+]", "", raw)
+    return cleaned
 
-    The real implementation will swap in without changing method signatures.
+
+def _is_valid_key(api_key: str) -> bool:
+    return bool(api_key) and "your-" not in api_key and len(api_key) >= 20
+
+
+# ---------------------------------------------------------------------------
+# Client
+# ---------------------------------------------------------------------------
+
+class GooglePlacesClient:
+    """Hotel discovery backed by SerpAPI's google_maps engine.
+
+    Constructor takes a SerpAPI key (the manager now wires
+    ``settings.serpapi_api_key`` here). Falls back to curated mock data if
+    the key is missing or a request fails.
     """
 
     def __init__(self, api_key: str) -> None:
         self._api_key = api_key
-        logger.warning("GooglePlacesClient initialized (MOCK MODE)")
+        self._real = _is_valid_key(api_key)
+        self._client = httpx.AsyncClient(timeout=20.0)
+        if self._real:
+            logger.info("GooglePlacesClient using SerpAPI google_maps engine")
+        else:
+            logger.warning("GooglePlacesClient: no valid key, MOCK fallback only")
 
+    # ------------------------------------------------------------------
+    @tracing.observe(name="places.search_hotels")
     async def search_hotels(self, query: str) -> list[Hotel]:
-        """Return 6-8 realistic fake Hotel objects based on the query."""
+        """Return up to 8 Hotel objects with working phone numbers."""
+        if self._real:
+            try:
+                hotels = await self._search_serpapi(query)
+                if hotels:
+                    return hotels
+                logger.warning("SerpAPI returned 0 valid hotels for %r, using mock", query)
+            except Exception as exc:
+                logger.warning("SerpAPI search failed (%s); falling back to mock", exc)
+        return self._search_mock(query)
+
+    async def _search_serpapi(self, query: str) -> list[Hotel]:
+        q = query if "hotel" in query.lower() else f"hotels in {query}"
+        params = {
+            "engine": "google_maps",
+            "type": "search",
+            "q": q,
+            "api_key": self._api_key,
+        }
+        resp = await self._client.get(SERPAPI_BASE, params=params)
+        resp.raise_for_status()
+        data = resp.json()
+        local = data.get("local_results") or []
+
+        hotels: list[Hotel] = []
+        for item in local:
+            phone = _normalize_phone(item.get("phone"))
+            if not phone:
+                continue  # Bolna needs a phone number to call
+            place_id = (
+                item.get("place_id")
+                or item.get("data_id")
+                or f"sa_{len(hotels)}"
+            )
+            hotels.append(Hotel(
+                place_id=place_id,
+                name=item.get("title") or "Unknown Hotel",
+                phone=phone,
+                address=item.get("address") or "Address unavailable",
+                rating=float(item.get("rating") or 0.0),
+                ota_price=None,
+                photo_url=item.get("thumbnail"),
+                amenities=[],
+            ))
+            if len(hotels) >= 8:
+                break
+
+        logger.info(
+            "SerpAPI search_hotels | q=%s | raw=%d | with_phone=%d",
+            q, len(local), len(hotels),
+        )
+        return hotels
+
+    def _search_mock(self, query: str) -> list[Hotel]:
         destination, raw_hotels = _detect_destination(query)
         hotels = _build_mock_hotels(destination, raw_hotels)
-
-        # Return 6-8 results (trim if needed, pad from generic if too few)
         if len(hotels) > 8:
             hotels = random.sample(hotels, 8)
         elif len(hotels) < 6:
             extra_needed = 6 - len(hotels)
             generic = _build_mock_hotels(destination, _GENERIC_HOTELS[:extra_needed])
             hotels.extend(generic)
-
         logger.warning(
-            "MOCK search_hotels | query=%s | destination=%s | returning %d results",
+            "MOCK search_hotels | query=%s | destination=%s | n=%d",
             query, destination, len(hotels),
         )
         return hotels
 
+    # ------------------------------------------------------------------
+    @tracing.observe(name="places.get_hotel_details")
     async def get_hotel_details(self, place_id: str) -> Hotel:
-        """Return a mock hotel matching the given place_id."""
-        # Search through all hotel sets
+        """Fetch a single place; falls back to mock lookup on error."""
+        if self._real and not place_id.startswith("mock_"):
+            try:
+                return await self._details_serpapi(place_id)
+            except Exception as exc:
+                logger.warning(
+                    "SerpAPI details failed for %s (%s); using mock", place_id, exc
+                )
+        return self._details_mock(place_id)
+
+    async def _details_serpapi(self, place_id: str) -> Hotel:
+        params = {
+            "engine": "google_maps",
+            "place_id": place_id,
+            "api_key": self._api_key,
+        }
+        resp = await self._client.get(SERPAPI_BASE, params=params)
+        resp.raise_for_status()
+        data = resp.json()
+        item = data.get("place_results") or {}
+        phone = _normalize_phone(item.get("phone")) or "+91-800-000-0000"
+        return Hotel(
+            place_id=place_id,
+            name=item.get("title") or "Unknown Hotel",
+            phone=phone,
+            address=item.get("address") or "Address unavailable",
+            rating=float(item.get("rating") or 0.0),
+            ota_price=None,
+            photo_url=item.get("thumbnail"),
+            amenities=[],
+        )
+
+    def _details_mock(self, place_id: str) -> Hotel:
         for dest, raw_hotels in _DESTINATION_MAP.items():
             for i, h in enumerate(raw_hotels):
                 slug = re.sub(r"[^a-z0-9]+", "_", dest).strip("_")
                 if place_id == f"mock_{i}_{slug}":
-                    logger.warning("MOCK get_hotel_details | place_id=%s | found=%s", place_id, h["name"])
                     return Hotel(
                         place_id=place_id,
                         name=h["name"],
@@ -142,10 +252,8 @@ class GooglePlacesClient:
                         ota_price=None,
                         amenities=h["amenities"],
                     )
-        # Fallback: check generic
         for i, h in enumerate(_GENERIC_HOTELS):
             if place_id == f"mock_{i}_generic":
-                logger.warning("MOCK get_hotel_details | place_id=%s | found=%s", place_id, h["name"])
                 return Hotel(
                     place_id=place_id,
                     name=h["name"],
@@ -155,8 +263,7 @@ class GooglePlacesClient:
                     ota_price=None,
                     amenities=h["amenities"],
                 )
-
-        logger.warning("MOCK get_hotel_details | place_id=%s | NOT FOUND, returning placeholder", place_id)
+        logger.warning("get_hotel_details | place_id=%s NOT FOUND", place_id)
         return Hotel(
             place_id=place_id,
             name="Unknown Hotel",
@@ -167,6 +274,6 @@ class GooglePlacesClient:
             amenities=[],
         )
 
+    # ------------------------------------------------------------------
     async def close(self) -> None:
-        """No-op for mock client."""
-        pass
+        await self._client.aclose()
