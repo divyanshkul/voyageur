@@ -1,10 +1,11 @@
 "use client"
 
-import { useCallback, useMemo } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { PipelineView } from "@/components/pipeline/PipelineView"
 import { ChatPanel } from "@/components/chat/ChatPanel"
 import { CallTracker } from "@/components/calling/CallTracker"
 import { CompilingView } from "@/components/report/CompilingView"
+import { VoiceOnboarding } from "@/components/voice/VoiceOnboarding"
 import { useSession } from "@/hooks/useSession"
 import { useChat } from "@/hooks/useChat"
 import { useWebSocket } from "@/hooks/useWebSocket"
@@ -82,6 +83,13 @@ export default function HomePage() {
     },
   })
 
+  // Voice-mode toggle — defaults ON at the start of a session so onboarding
+  // feels like a concierge call. User can bail to text with "Type instead".
+  const [voiceMode, setVoiceMode] = useState(true)
+  useEffect(() => {
+    if (session.stage !== "collecting") setVoiceMode(false)
+  }, [session.stage])
+
   const handleApproveHotels = useCallback(
     (hotels: Hotel[]) => {
       setApprovedHotels(hotels)
@@ -93,13 +101,17 @@ export default function HomePage() {
     [setApprovedHotels, updateStage, sendMessage]
   )
 
-  // Demo mode: takes hotel with phone already swapped, sends a special
-  // message so backend replaces the phone for just this hotel
+  // Demo mode: hotels come in with phones already swapped. One or many —
+  // backend parser accepts `pid=phone,pid=phone,...`.
   const handleDemoCall = useCallback(
-    (hotel: Hotel) => {
-      setApprovedHotels([hotel])
+    (hotels: Hotel[]) => {
+      if (hotels.length === 0) return
+      setApprovedHotels(hotels)
       updateStage("calling")
-      sendMessage(`DEMO_CALL:${hotel.place_id}:${hotel.phone}`)
+      const payload = hotels
+        .map((h) => `${h.place_id}=${h.phone}`)
+        .join(",")
+      sendMessage(`DEMO_CALL:${payload}`)
     },
     [setApprovedHotels, updateStage, sendMessage]
   )
@@ -129,6 +141,15 @@ export default function HomePage() {
     }
     if (stage === "compiling") {
       return <CompilingView />
+    }
+    if (stage === "collecting" && voiceMode) {
+      return (
+        <VoiceOnboarding
+          active={stage === "collecting" && voiceMode}
+          onSend={sendMessage}
+          onExit={() => setVoiceMode(false)}
+        />
+      )
     }
     return (
       <ChatPanel

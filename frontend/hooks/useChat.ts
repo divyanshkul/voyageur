@@ -25,9 +25,9 @@ export function useChat({ sessionId, onStage, onHotels, onReport }: UseChatArgs)
   const [error, setError] = useState<string | null>(null)
 
   const sendMessage = useCallback(
-    async (text: string) => {
+    async (text: string): Promise<string> => {
       const trimmed = text.trim()
-      if (!trimmed || !sessionId || sessionId === "pending") return
+      if (!trimmed || !sessionId || sessionId === "pending") return ""
 
       // Replace internal formats with user-friendly text
       const displayText = trimmed.startsWith("APPROVE_IDS:")
@@ -60,19 +60,22 @@ export function useChat({ sessionId, onStage, onHotels, onReport }: UseChatArgs)
         if (resp.stage) onStage?.(resp.stage)
         if (resp.hotels) onHotels?.(resp.hotels)
         if (resp.report) onReport?.(resp.report)
+        return resp.reply ?? ""
       } catch (e) {
         const msg = e instanceof Error ? e.message : "unknown error"
         setError(msg)
+        const fallback =
+          "The line went quiet — I couldn't reach the concierge desk. Try again in a moment."
         setMessages((m) => [
           ...m,
           {
             id: crypto.randomUUID(),
             role: "agent",
-            content:
-              "The line went quiet — I couldn't reach the concierge desk. Try again in a moment.",
+            content: fallback,
             timestamp: new Date(),
           },
         ])
+        return fallback
       } finally {
         setIsLoading(false)
       }

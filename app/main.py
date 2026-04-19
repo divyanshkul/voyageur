@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+from app.api.voice import router as voice_router
 from app.config import get_settings
 from app.logging_config import setup_logging
 from app.services import tracing
@@ -64,6 +65,7 @@ app.add_middleware(
 # Mount Bolna webhook router
 # ---------------------------------------------------------------------------
 app.include_router(bolna_webhook_router)
+app.include_router(voice_router)
 
 
 # ---------------------------------------------------------------------------

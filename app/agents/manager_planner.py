@@ -111,29 +111,45 @@ def parse_approval(
         )
         return result
 
-    # -- Demo call: pick one hotel, swap phone to demo number ---------------
+    # -- Demo call: swap phone(s) to user-provided demo number(s) -----------
+    # Payload forms accepted after "DEMO_CALL:":
+    #   pid=phone,pid=phone,...   (multi, preferred)
+    #   pid:phone                 (single, legacy)
     if stripped.startswith("DEMO_CALL:"):
-        parts = stripped[len("DEMO_CALL:"):].split(":", 1)
-        place_id = parts[0].strip()
-        demo_phone = parts[1].strip() if len(parts) > 1 else ""
-        for h in hotel_candidates:
-            if h.place_id == place_id:
-                demo_hotel = h.model_copy(update={"phone": demo_phone})
-                logger.info(
-                    "parse_approval parsed=demo_call hotel=%s phone=****%s",
-                    demo_hotel.name,
-                    demo_phone[-4:],
-                )
-                return [demo_hotel]
-        # place_id not found -- try first hotel as fallback
-        if hotel_candidates:
-            demo_hotel = hotel_candidates[0].model_copy(update={"phone": demo_phone})
-            logger.info(
-                "parse_approval parsed=demo_call fallback hotel=%s",
-                demo_hotel.name,
+        payload = stripped[len("DEMO_CALL:"):]
+        pairs: list[tuple[str, str]] = []
+        if "=" in payload:
+            for raw_pair in payload.split(","):
+                if "=" not in raw_pair:
+                    continue
+                pid, phone = raw_pair.split("=", 1)
+                pairs.append((pid.strip(), phone.strip()))
+        else:
+            parts = payload.split(":", 1)
+            pid = parts[0].strip()
+            phone = parts[1].strip() if len(parts) > 1 else ""
+            pairs.append((pid, phone))
+
+        result: list[Hotel] = []
+        for pid, phone in pairs:
+            matched = next(
+                (h for h in hotel_candidates if h.place_id == pid), None
             )
-            return [demo_hotel]
-        return []
+            if matched is not None:
+                result.append(matched.model_copy(update={"phone": phone}))
+
+        # Fallback: if nothing matched, attach the first pair's phone to the
+        # first candidate so the demo at least rings through.
+        if not result and pairs and hotel_candidates:
+            _pid, phone = pairs[0]
+            result.append(hotel_candidates[0].model_copy(update={"phone": phone}))
+
+        logger.info(
+            "parse_approval parsed=demo_call pairs=%d matched=%d",
+            len(pairs),
+            len(result),
+        )
+        return result
 
     # -- None / cancel -----------------------------------------------------
     if any(kw in lower for kw in _CANCEL_KEYWORDS):

@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     bolna_api_key: str = ""
     google_places_api_key: str = ""
     serpapi_api_key: str = ""
+    sarvam_api_key: str = ""
     bolna_webhook_url: str = "http://localhost:8000/webhook/bolna"
     bolna_agent_language: str = "kn-IN"
     max_concurrent_calls: int = 3

@@ -12,7 +12,7 @@ interface ChatPanelProps {
   messages: ChatMessageT[]
   onSend: (text: string) => void
   onApproveHotels?: (hotels: Hotel[]) => void
-  onDemoCall?: (hotel: Hotel) => void
+  onDemoCall?: (hotels: Hotel[]) => void
   isLoading: boolean
   placeholder?: string
   starters?: string[]
