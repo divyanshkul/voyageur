@@ -1,0 +1,17 @@
+{
+  "id": "validation_happy_path",
+  "suite": "offline",
+  "evaluator": "validation",
+  "description": "Well-formed preferences pass validation",
+  "input": {
+    "preferences": {
+      "destination": "Goa",
+      "check_in": "{today+14d}",
+      "check_out": "{today+18d}",
+      "budget_max": 6000,
+      "budget_min": 3000,
+      "guests": 2
+    }
+  },
+  "expect": { "valid": true }
+}

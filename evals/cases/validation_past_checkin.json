@@ -1,0 +1,19 @@
+{
+  "id": "validation_rejects_past_checkin",
+  "suite": "offline",
+  "evaluator": "validation",
+  "description": "check_in in the past must fail validation with a descriptive issue",
+  "input": {
+    "preferences": {
+      "destination": "Goa",
+      "check_in": "{today-5d}",
+      "check_out": "{today+2d}",
+      "budget_max": 5000,
+      "guests": 2
+    }
+  },
+  "expect": {
+    "valid": false,
+    "issue_contains": ["check_in"]
+  }
+}

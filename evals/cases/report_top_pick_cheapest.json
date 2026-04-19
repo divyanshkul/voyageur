@@ -1,0 +1,44 @@
+{
+  "id": "report_top_pick_cheapest",
+  "suite": "online",
+  "evaluator": "report",
+  "description": "Given 3 completed calls, the cheapest direct-price hotel is the top pick and the summary mentions its name",
+  "input": {
+    "preferences": {
+      "destination": "Coorg, Karnataka",
+      "check_in": "{today+30d}",
+      "check_out": "{today+33d}",
+      "budget_max": 9000,
+      "budget_min": 5000,
+      "guests": 2
+    },
+    "call_results": [
+      {
+        "hotel": { "name": "Misty Hills Retreat", "ota_price": 7000 },
+        "status": "completed",
+        "availability": true,
+        "direct_price": 5500,
+        "transcript": "Manager offered a direct rate of Rs 5500 including breakfast."
+      },
+      {
+        "hotel": { "name": "Coffee Estate Inn", "ota_price": 6500 },
+        "status": "completed",
+        "availability": true,
+        "direct_price": 6200,
+        "transcript": "Front desk quoted Rs 6200 nightly, taxes extra."
+      },
+      {
+        "hotel": { "name": "Evergreen Resort", "ota_price": 8000 },
+        "status": "completed",
+        "availability": true,
+        "direct_price": 7800,
+        "transcript": "Only executive rooms available at Rs 7800."
+      }
+    ]
+  },
+  "expect": {
+    "top_pick_name": "Misty Hills Retreat",
+    "summary_contains": ["Misty Hills"],
+    "markdown_contains": ["Misty Hills"]
+  }
+}

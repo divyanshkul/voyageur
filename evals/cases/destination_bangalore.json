@@ -1,0 +1,8 @@
+{
+  "id": "destination_bangalore_alias",
+  "suite": "offline",
+  "evaluator": "destination",
+  "description": "Bangalore → Bengaluru, Karnataka alias",
+  "input": { "alias": "bangalore" },
+  "expect": { "canonical": "Bengaluru, Karnataka" }
+}

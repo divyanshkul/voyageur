@@ -1,0 +1,24 @@
+{
+  "totals": {
+    "cases": 12,
+    "passed": 12,
+    "failed": 0,
+    "skipped": 0
+  },
+  "suites": {
+    "offline": {
+      "total": 9,
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0,
+      "pass_rate": 1.0
+    },
+    "online": {
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "pass_rate": 1.0
+    }
+  }
+}

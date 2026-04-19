@@ -1,0 +1,8 @@
+{
+  "id": "destination_coorg_casing",
+  "suite": "offline",
+  "evaluator": "destination",
+  "description": "Mixed-case alias still resolves",
+  "input": { "alias": "CoOrG" },
+  "expect": { "canonical": "Coorg, Karnataka" }
+}

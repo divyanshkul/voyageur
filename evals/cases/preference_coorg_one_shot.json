@@ -1,0 +1,24 @@
+{
+  "id": "preference_coorg_full_flow",
+  "suite": "online",
+  "evaluator": "preference",
+  "description": "Multi-turn walkthrough of the Coorg intake. Ends with confirmation -> extraction.",
+  "input": {
+    "turns": [
+      "I want to plan a Coorg trip.",
+      "From Bengaluru, 3 nights from {today+30d} to {today+33d}. Couple trip, just the two of us.",
+      "Relaxed vibe. Budget around Rs 8000 per night, so Rs 24000 total excluding flights.",
+      "No dietary preferences, we want a resort with a pool and wifi, nothing to avoid.",
+      "Yes that summary is correct, please extract and proceed."
+    ]
+  },
+  "expect": {
+    "extracted": true,
+    "preferences": {
+      "destination_contains": "Coorg",
+      "guests": 2,
+      "budget_max_in_range": [6000, 10000],
+      "nights_in_range": [3, 3]
+    }
+  }
+}

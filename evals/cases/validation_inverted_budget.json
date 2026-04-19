@@ -1,0 +1,20 @@
+{
+  "id": "validation_rejects_inverted_budget",
+  "suite": "offline",
+  "evaluator": "validation",
+  "description": "budget_min >= budget_max must fail",
+  "input": {
+    "preferences": {
+      "destination": "Coorg, Karnataka",
+      "check_in": "{today+30d}",
+      "check_out": "{today+33d}",
+      "budget_max": 4000,
+      "budget_min": 5000,
+      "guests": 2
+    }
+  },
+  "expect": {
+    "valid": false,
+    "issue_contains": ["budget_min"]
+  }
+}

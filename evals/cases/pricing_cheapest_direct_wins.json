@@ -1,0 +1,33 @@
+{
+  "id": "pricing_cheapest_direct_wins",
+  "suite": "offline",
+  "evaluator": "pricing",
+  "description": "Available + cheaper-than-OTA hotel ranks first; unavailable goes last",
+  "input": {
+    "call_results": [
+      {
+        "hotel": { "name": "Hotel Even", "ota_price": 5000 },
+        "status": "completed",
+        "availability": true,
+        "direct_price": 5000
+      },
+      {
+        "hotel": { "name": "Hotel Deal", "ota_price": 6000 },
+        "status": "completed",
+        "availability": true,
+        "direct_price": 4500
+      },
+      {
+        "hotel": { "name": "Hotel Full", "ota_price": 5500 },
+        "status": "completed",
+        "availability": false,
+        "direct_price": 6000
+      }
+    ]
+  },
+  "expect": {
+    "top_name": "Hotel Deal",
+    "verdicts_in_order": ["cheaper", "same", "more_expensive"],
+    "savings_percent_min": 20.0
+  }
+}

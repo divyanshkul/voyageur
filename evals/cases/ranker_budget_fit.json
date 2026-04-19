@@ -1,0 +1,35 @@
+{
+  "id": "ranker_budget_fit",
+  "suite": "offline",
+  "evaluator": "ranker",
+  "description": "Hotel closest to budget with matching amenity and high rating wins",
+  "input": {
+    "preferences": {
+      "destination": "Coorg, Karnataka",
+      "check_in": "{today+30d}",
+      "check_out": "{today+33d}",
+      "budget_max": 8000,
+      "budget_min": 5000,
+      "guests": 2,
+      "amenities": ["pool", "wifi"],
+      "star_rating": 4
+    },
+    "hotels": [
+      { "name": "Coorg Overbudget Luxe", "rating": 4.7, "amenities": ["wifi", "pool", "spa"] },
+      { "name": "Coorg Sweet Spot Resort", "rating": 4.4, "amenities": ["wifi", "pool"] },
+      { "name": "Coorg Budget Inn", "rating": 3.2, "amenities": ["wifi"] },
+      { "name": "Coorg No Phone", "rating": 4.6, "phone": "", "amenities": ["wifi", "pool"] }
+    ],
+    "ota_prices": {
+      "Coorg Overbudget Luxe": 15000,
+      "Coorg Sweet Spot Resort": 7500,
+      "Coorg Budget Inn": 2500
+    }
+  },
+  "expect": {
+    "top_name": "Coorg Sweet Spot Resort",
+    "min_returned": 2,
+    "top_score_min": 0.55,
+    "excludes": ["Coorg No Phone", "Coorg Overbudget Luxe"]
+  }
+}

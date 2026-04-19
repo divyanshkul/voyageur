@@ -1,0 +1,8 @@
+{
+  "id": "destination_unknown_passthrough",
+  "suite": "offline",
+  "evaluator": "destination",
+  "description": "Unknown destination is returned unchanged",
+  "input": { "alias": "Shillong" },
+  "expect": { "canonical": "Shillong" }
+}

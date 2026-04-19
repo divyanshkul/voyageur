@@ -21,3 +21,6 @@ venv/
 # Coverage output
 .coverage
 htmlcov/
+
+# Eval reports (regenerated every run)
+evals/reports/

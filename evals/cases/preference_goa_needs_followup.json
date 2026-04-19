@@ -1,0 +1,23 @@
+{
+  "id": "preference_goa_full_flow",
+  "suite": "online",
+  "evaluator": "preference",
+  "description": "Multi-turn Goa friends trip flow ending in confirmation -> extraction.",
+  "input": {
+    "turns": [
+      "We want to go to Goa.",
+      "From Mumbai, 4 nights from {today+21d} to {today+25d}. 4 friends.",
+      "Sightseeing and some nightlife, budget around Rs 12000 per night for the group, so Rs 48000 total excluding flights.",
+      "No dietary preferences, beach-facing hotel would be great, nothing to avoid.",
+      "Yes, that summary is correct, please extract and proceed."
+    ]
+  },
+  "expect": {
+    "extracted": true,
+    "preferences": {
+      "destination_contains": "Goa",
+      "guests": 4,
+      "nights_in_range": [4, 4]
+    }
+  }
+}
